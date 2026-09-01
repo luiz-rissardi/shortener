@@ -14,3 +14,6 @@ docker exec proxysql mysql -uadmin -padmin -P6032 -e "SELECT hostgroup_id,hostna
 docker exec proxysql mysql -uadmin -padmin -P6032 -e "SELECT username,password,active,default_hostgroup FROM mysql_users;"
 docker exec proxysql mysql -h127.0.0.1 -P6033 -uapp_user -papp_password -e "SELECT 1 AS connected;"
 docker exec proxysql mysql -h127.0.0.1 -P6033 -uapp_user -papp_password -e "SELECT @@hostname AS backend, @@server_id AS server_id, @@read_only AS read_only;"
+
+
+docker compose run --rm node

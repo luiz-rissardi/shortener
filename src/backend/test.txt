@@ -1,0 +1,381 @@
+services:
+
+  mysql-primary:
+    image: mysql:8.0.46
+    container_name: mysql-primary
+    hostname: mysql-primary
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: app_user
+      MYSQL_PASSWORD: app_password
+    command:
+      - --server-id=1
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
+      - --log-replica-updates=ON
+      - --binlog-checksum=NONE
+      - --default-authentication-plugin=mysql_native_password
+    ports:
+      - "33061:3306"
+    volumes:
+      - primary_data:/var/lib/mysql
+    networks:
+      - mysql-cluster
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  mysql-replica-1:
+    image: mysql:8.0.46
+    container_name: mysql-replica-1
+    hostname: mysql-replica-1
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: myapp
+    command:
+      - --server-id=2
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
+      - --log-replica-updates=ON
+      - --read-only=ON
+      - --binlog-checksum=NONE
+      - --default-authentication-plugin=mysql_native_password
+    ports:
+      - "33071:3306"
+    volumes:
+      - replica1_data:/var/lib/mysql
+    networks:
+      - mysql-cluster
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  mysql-replica-2:
+    image: mysql:8.0.46
+    container_name: mysql-replica-2
+    hostname: mysql-replica-2
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: myapp
+    command:
+      - --server-id=3
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
+      - --log-replica-updates=ON
+      - --read-only=ON
+      - --binlog-checksum=NONE
+      - --default-authentication-plugin=mysql_native_password
+    ports:
+      - "33081:3306"
+    volumes:
+      - replica2_data:/var/lib/mysql
+    networks:
+      - mysql-cluster
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  mysql-replica-3:
+    image: mysql:8.0.46
+    container_name: mysql-replica-3
+    hostname: mysql-replica-3
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: myapp
+    command:
+      - --server-id=4
+      - --log-bin=mysql-bin
+      - --binlog-format=ROW
+      - --gtid-mode=ON
+      - --enforce-gtid-consistency=ON
+      - --log-replica-updates=ON
+      - --read-only=ON
+      - --binlog-checksum=NONE
+      - --default-authentication-plugin=mysql_native_password
+    ports:
+      - "33091:3306"
+    volumes:
+      - replica3_data:/var/lib/mysql
+    networks:
+      - mysql-cluster
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  proxysql:
+    image: proxysql/proxysql:2.6.6
+    container_name: proxysql
+    hostname: proxysql
+    restart: unless-stopped
+    ports:
+      - "6033:6033"
+      - "6032:6032"
+    volumes:
+      - proxysql_data:/var/lib/proxysql
+    networks:
+      - mysql-cluster
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+      mysql-replica-1:
+        condition: service_healthy
+      mysql-replica-2:
+        condition: service_healthy
+      mysql-replica-3:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -P 6032 -uadmin -padmin -e 'SELECT 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  failover-manager:
+    image: alpine:3.19
+    container_name: failover-manager
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - sh
+      - -c
+      - |
+        apk add --no-cache mysql-client docker-cli bash
+        echo "🛡️ Monitor de Failover e Failback ativado (Modo Contínuo)..."
+        sleep 40
+
+        ACTIVE_MASTER="mysql-primary"
+
+        while true; do
+          sleep 5
+
+          if ! mysql --protocol=tcp -h "$$ACTIVE_MASTER" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
+            echo "🚨 ALERTA: $$ACTIVE_MASTER caiu! Iniciando Failover..."
+
+            NEW_MASTER=""
+            for candidate in mysql-primary mysql-replica-1 mysql-replica-2 mysql-replica-3; do
+              if [ "$$candidate" != "$$ACTIVE_MASTER" ]; then
+                if mysql --protocol=tcp -h "$$candidate" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
+                  NEW_MASTER="$$candidate"
+                  break
+                fi
+              fi
+            done
+
+            if [ -z "$$NEW_MASTER" ]; then
+              echo "❌ ERRO: Nenhuma réplica disponível para assumir o posto!"
+              continue
+            fi
+
+            echo "🔄 Promovendo $$NEW_MASTER a novo Primary..."
+
+            mysql --protocol=tcp -h "$$NEW_MASTER" -uroot -proot_password -e "
+              STOP REPLICA;
+              RESET REPLICA ALL;
+              SET GLOBAL read_only = OFF;
+            "
+
+            for node in mysql-primary mysql-replica-1 mysql-replica-2 mysql-replica-3; do
+              if [ "$$node" != "$$NEW_MASTER" ]; then
+                if mysql --protocol=tcp -h "$$node" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
+                  mysql --protocol=tcp -h "$$node" -uroot -proot_password -e "
+                    STOP REPLICA;
+                    RESET REPLICA ALL;
+                    CHANGE REPLICATION SOURCE TO
+                      SOURCE_HOST='$$NEW_MASTER',
+                      SOURCE_USER='repl_user',
+                      SOURCE_PASSWORD='repl_password',
+                      SOURCE_AUTO_POSITION=1;
+                    START REPLICA;
+                    SET GLOBAL read_only = ON;
+                  "
+                  echo "✅ $$node agora aponta para $$NEW_MASTER"
+                fi
+              fi
+            done
+
+            docker exec proxysql mysql -uadmin -padmin -P6032 -e "
+              UPDATE mysql_servers SET hostgroup_id=1 WHERE hostgroup_id=0;
+              UPDATE mysql_servers SET hostgroup_id=0 WHERE hostname='$$NEW_MASTER';
+              LOAD MYSQL SERVERS TO RUNTIME;
+              SAVE MYSQL SERVERS TO DISK;
+            "
+
+            echo "✅ Failover concluído! Novo master ativo: $$NEW_MASTER"
+            ACTIVE_MASTER="$$NEW_MASTER"
+
+          else
+            if [ "$$ACTIVE_MASTER" != "mysql-primary" ]; then
+              if mysql --protocol=tcp -h "mysql-primary" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
+                echo "🔄 O mysql-primary original voltou online! Sincronizando dados e realizando Failback..."
+
+                mysql --protocol=tcp -h "mysql-primary" -uroot -proot_password -e "
+                  STOP REPLICA;
+                  RESET REPLICA ALL;
+                  CHANGE REPLICATION SOURCE TO
+                    SOURCE_HOST='$$ACTIVE_MASTER',
+                    SOURCE_USER='repl_user',
+                    SOURCE_PASSWORD='repl_password',
+                    SOURCE_AUTO_POSITION=1;
+                  START REPLICA;
+                "
+
+                sleep 6
+
+                mysql --protocol=tcp -h "mysql-primary" -uroot -proot_password -e "
+                  STOP REPLICA;
+                  RESET REPLICA ALL;
+                  SET GLOBAL read_only = OFF;
+                "
+
+                for node in mysql-replica-1 mysql-replica-2 mysql-replica-3; do
+                  if mysql --protocol=tcp -h "$$node" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
+                    mysql --protocol=tcp -h "$$node" -uroot -proot_password -e "
+                      STOP REPLICA;
+                      RESET REPLICA ALL;
+                      CHANGE REPLICATION SOURCE TO
+                        SOURCE_HOST='mysql-primary',
+                        SOURCE_USER='repl_user',
+                        SOURCE_PASSWORD='repl_password',
+                        SOURCE_AUTO_POSITION=1;
+                      START REPLICA;
+                      SET GLOBAL read_only = ON;
+                    "
+                  fi
+                done
+
+                docker exec proxysql mysql -uadmin -padmin -P6032 -e "
+                  UPDATE mysql_servers SET hostgroup_id=1 WHERE hostgroup_id=0;
+                  UPDATE mysql_servers SET hostgroup_id=0 WHERE hostname='mysql-primary';
+                  LOAD MYSQL SERVERS TO RUNTIME;
+                  SAVE MYSQL SERVERS TO DISK;
+                "
+
+                echo "✅ Failback concluído! O mysql-primary recuperou o posto de escrita."
+                ACTIVE_MASTER="mysql-primary"
+              fi
+            fi
+          fi
+        done
+    networks:
+      - mysql-cluster
+    depends_on:
+      init-replication:
+        condition: service_completed_successfully
+        
+  init-replication:
+    image: mysql:8.0.46
+    container_name: init-replication
+    restart: "no"
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        set -e
+         MYSQL="mysql --protocol=tcp --connect-timeout=5"
+        ROOT="-uroot -proot_password"
+
+        echo "Aguardando MySQL Primary..."
+
+        until $$MYSQL -h mysql-primary $$ROOT -e "SELECT 1" >/dev/null 2>&1; do
+        sleep 2
+        done
+
+        echo "Criando usuário de replicação..."
+
+        $$MYSQL -h mysql-primary $$ROOT <<'SQL'
+        CREATE USER IF NOT EXISTS 'repl_user'@'%' IDENTIFIED WITH mysql_native_password BY 'repl_password';
+        GRANT REPLICATION SLAVE ON *.* TO 'repl_user'@'%';
+        FLUSH PRIVILEGES;
+        SQL
+
+        for REPLICA in mysql-replica-1 mysql-replica-2 mysql-replica-3; do
+
+        echo "Aguardando $$REPLICA ficar disponível..."
+
+        until $$MYSQL -h "$$REPLICA" $$ROOT -e "SELECT 1" >/dev/null 2>&1; do
+          echo "  $$REPLICA ainda não está disponível..."
+          sleep 2
+        done
+
+        echo "Configurando $$REPLICA..."
+
+        $$MYSQL -h "$$REPLICA" $$ROOT -e "
+          STOP REPLICA;
+          RESET REPLICA ALL;
+        " 2>/dev/null || true
+
+        $$MYSQL -h "$$REPLICA" $$ROOT -e "
+          CHANGE REPLICATION SOURCE TO
+            SOURCE_HOST='mysql-primary',
+            SOURCE_PORT=3306,
+            SOURCE_USER='repl_user',
+            SOURCE_PASSWORD='repl_password',
+            SOURCE_AUTO_POSITION=1;
+          START REPLICA;
+        "
+
+        echo "✅ $$REPLICA configurada."
+
+        done
+
+        echo "=========================================="
+        echo "✅ Replicação inicial configurada."
+        echo "=========================================="
+        
+    networks:
+      - mysql-cluster
+    depends_on:
+      mysql-primary:
+        condition: service_healthy
+      mysql-replica-1:
+        condition: service_healthy
+      mysql-replica-2:
+        condition: service_healthy
+      mysql-replica-3:
+        condition: service_healthy
+      proxysql:
+        condition: service_healthy
+
+volumes:
+  primary_data:
+  replica1_data:
+  replica2_data:
+  replica3_data:
+  proxysql_data:
+
+networks:
+  mysql-cluster:
+    driver: bridge

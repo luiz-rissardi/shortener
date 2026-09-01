@@ -1,381 +1,288 @@
 services:
 
-  mysql-primary:
-    image: mysql:8.0.46
-    container_name: mysql-primary
-    hostname: mysql-primary
+  redis-primary:
+    image: redis:8-alpine
+    container_name: redis-primary
     restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: myapp
-      MYSQL_USER: app_user
-      MYSQL_PASSWORD: app_password
+
     command:
-      - --server-id=1
-      - --log-bin=mysql-bin
-      - --binlog-format=ROW
-      - --gtid-mode=ON
-      - --enforce-gtid-consistency=ON
-      - --log-replica-updates=ON
-      - --binlog-checksum=NONE
-      - --default-authentication-plugin=mysql_native_password
-    ports:
-      - "33061:3306"
-    volumes:
-      - primary_data:/var/lib/mysql
-    networks:
-      - mysql-cluster
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-      start_period: 30s
+      - redis-server
+      - /etc/redis/redis.conf
 
-  mysql-replica-1:
-    image: mysql:8.0.46
-    container_name: mysql-replica-1
-    hostname: mysql-replica-1
+    volumes:
+      - ./redis-config/redis-master.conf:/etc/redis/redis.conf:ro
+      - redis-primary-data:/data
+
+    ports:
+      - "6379:6379"
+
+    networks:
+      - redis-net
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "-a",
+          "redispassword",
+          "PING"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+
+  redis-replica-1:
+    image: redis:8-alpine
+    container_name: redis-replica-1
     restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: myapp
+
     command:
-      - --server-id=2
-      - --log-bin=mysql-bin
-      - --binlog-format=ROW
-      - --gtid-mode=ON
-      - --enforce-gtid-consistency=ON
-      - --log-replica-updates=ON
-      - --read-only=ON
-      - --binlog-checksum=NONE
-      - --default-authentication-plugin=mysql_native_password
-    ports:
-      - "33071:3306"
-    volumes:
-      - replica1_data:/var/lib/mysql
-    networks:
-      - mysql-cluster
-    depends_on:
-      mysql-primary:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-      start_period: 30s
+      - redis-server
+      - /etc/redis/redis.conf
 
-  mysql-replica-2:
-    image: mysql:8.0.46
-    container_name: mysql-replica-2
-    hostname: mysql-replica-2
+    volumes:
+      - ./redis-config/redis-replica.conf:/etc/redis/redis.conf:ro
+      - redis-replica-1-data:/data
+
+    ports:
+      - "6380:6379"
+
+    networks:
+      - redis-net
+
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "-a",
+          "redispassword",
+          "PING"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+
+  redis-replica-2:
+    image: redis:8-alpine
+    container_name: redis-replica-2
     restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: myapp
+
     command:
-      - --server-id=3
-      - --log-bin=mysql-bin
-      - --binlog-format=ROW
-      - --gtid-mode=ON
-      - --enforce-gtid-consistency=ON
-      - --log-replica-updates=ON
-      - --read-only=ON
-      - --binlog-checksum=NONE
-      - --default-authentication-plugin=mysql_native_password
-    ports:
-      - "33081:3306"
-    volumes:
-      - replica2_data:/var/lib/mysql
-    networks:
-      - mysql-cluster
-    depends_on:
-      mysql-primary:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-      start_period: 30s
+      - redis-server
+      - /etc/redis/redis.conf
 
-  mysql-replica-3:
-    image: mysql:8.0.46
-    container_name: mysql-replica-3
-    hostname: mysql-replica-3
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: root_password
-      MYSQL_DATABASE: myapp
-    command:
-      - --server-id=4
-      - --log-bin=mysql-bin
-      - --binlog-format=ROW
-      - --gtid-mode=ON
-      - --enforce-gtid-consistency=ON
-      - --log-replica-updates=ON
-      - --read-only=ON
-      - --binlog-checksum=NONE
-      - --default-authentication-plugin=mysql_native_password
-    ports:
-      - "33091:3306"
     volumes:
-      - replica3_data:/var/lib/mysql
-    networks:
-      - mysql-cluster
-    depends_on:
-      mysql-primary:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_password"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-      start_period: 30s
+      - ./redis-config/redis-replica.conf:/etc/redis/redis.conf:ro
+      - redis-replica-2-data:/data
 
-  proxysql:
-    image: proxysql/proxysql:2.6.6
-    container_name: proxysql
-    hostname: proxysql
-    restart: unless-stopped
     ports:
-      - "6033:6033"
-      - "6032:6032"
-    volumes:
-      - proxysql_data:/var/lib/proxysql
-    networks:
-      - mysql-cluster
-    depends_on:
-      mysql-primary:
-        condition: service_healthy
-      mysql-replica-1:
-        condition: service_healthy
-      mysql-replica-2:
-        condition: service_healthy
-      mysql-replica-3:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "mysql -h 127.0.0.1 -P 6032 -uadmin -padmin -e 'SELECT 1' >/dev/null 2>&1"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
-      start_period: 10s
+      - "6381:6379"
 
-  failover-manager:
-    image: alpine:3.19
-    container_name: failover-manager
+    networks:
+      - redis-net
+
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "redis-cli",
+          "-a",
+          "redispassword",
+          "PING"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+
+  sentinel-1:
+    image: redis:8-alpine
+    container_name: sentinel-1
     restart: unless-stopped
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+
     command:
       - sh
       - -c
       - |
-        apk add --no-cache mysql-client docker-cli bash
-        echo "🛡️ Monitor de Failover e Failback ativado (Modo Contínuo)..."
-        sleep 40
+        set -e
 
-        ACTIVE_MASTER="mysql-primary"
+        if [ ! -f /data/sentinel.conf ]; then
+          until getent hosts redis-primary >/dev/null 2>&1; do
+            sleep 1
+          done
 
-        while true; do
-          sleep 5
+          PRIMARY_IP=$$(getent hosts redis-primary | awk 'NR==1 {print $$1}')
 
-          if ! mysql --protocol=tcp -h "$$ACTIVE_MASTER" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
-            echo "🚨 ALERTA: $$ACTIVE_MASTER caiu! Iniciando Failover..."
+          sed "s/REDIS_PRIMARY_IP/$$PRIMARY_IP/" \
+            /config/sentinel.conf \
+            > /data/sentinel.conf
+        fi
 
-            NEW_MASTER=""
-            for candidate in mysql-primary mysql-replica-1 mysql-replica-2 mysql-replica-3; do
-              if [ "$$candidate" != "$$ACTIVE_MASTER" ]; then
-                if mysql --protocol=tcp -h "$$candidate" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
-                  NEW_MASTER="$$candidate"
-                  break
-                fi
-              fi
-            done
+        exec redis-sentinel /data/sentinel.conf
 
-            if [ -z "$$NEW_MASTER" ]; then
-              echo "❌ ERRO: Nenhuma réplica disponível para assumir o posto!"
-              continue
-            fi
+    volumes:
+      - ./redis-config/sentinel.conf:/config/sentinel.conf:ro
+      - sentinel-1-data:/data
 
-            echo "🔄 Promovendo $$NEW_MASTER a novo Primary..."
+    ports:
+      - "26379:26379"
 
-            mysql --protocol=tcp -h "$$NEW_MASTER" -uroot -proot_password -e "
-              STOP REPLICA;
-              RESET REPLICA ALL;
-              SET GLOBAL read_only = OFF;
-            "
-
-            for node in mysql-primary mysql-replica-1 mysql-replica-2 mysql-replica-3; do
-              if [ "$$node" != "$$NEW_MASTER" ]; then
-                if mysql --protocol=tcp -h "$$node" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
-                  mysql --protocol=tcp -h "$$node" -uroot -proot_password -e "
-                    STOP REPLICA;
-                    RESET REPLICA ALL;
-                    CHANGE REPLICATION SOURCE TO
-                      SOURCE_HOST='$$NEW_MASTER',
-                      SOURCE_USER='repl_user',
-                      SOURCE_PASSWORD='repl_password',
-                      SOURCE_AUTO_POSITION=1;
-                    START REPLICA;
-                    SET GLOBAL read_only = ON;
-                  "
-                  echo "✅ $$node agora aponta para $$NEW_MASTER"
-                fi
-              fi
-            done
-
-            docker exec proxysql mysql -uadmin -padmin -P6032 -e "
-              UPDATE mysql_servers SET hostgroup_id=1 WHERE hostgroup_id=0;
-              UPDATE mysql_servers SET hostgroup_id=0 WHERE hostname='$$NEW_MASTER';
-              LOAD MYSQL SERVERS TO RUNTIME;
-              SAVE MYSQL SERVERS TO DISK;
-            "
-
-            echo "✅ Failover concluído! Novo master ativo: $$NEW_MASTER"
-            ACTIVE_MASTER="$$NEW_MASTER"
-
-          else
-            if [ "$$ACTIVE_MASTER" != "mysql-primary" ]; then
-              if mysql --protocol=tcp -h "mysql-primary" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
-                echo "🔄 O mysql-primary original voltou online! Sincronizando dados e realizando Failback..."
-
-                mysql --protocol=tcp -h "mysql-primary" -uroot -proot_password -e "
-                  STOP REPLICA;
-                  RESET REPLICA ALL;
-                  CHANGE REPLICATION SOURCE TO
-                    SOURCE_HOST='$$ACTIVE_MASTER',
-                    SOURCE_USER='repl_user',
-                    SOURCE_PASSWORD='repl_password',
-                    SOURCE_AUTO_POSITION=1;
-                  START REPLICA;
-                "
-
-                sleep 6
-
-                mysql --protocol=tcp -h "mysql-primary" -uroot -proot_password -e "
-                  STOP REPLICA;
-                  RESET REPLICA ALL;
-                  SET GLOBAL read_only = OFF;
-                "
-
-                for node in mysql-replica-1 mysql-replica-2 mysql-replica-3; do
-                  if mysql --protocol=tcp -h "$$node" -uroot -proot_password -e "SELECT 1" >/dev/null 2>&1; then
-                    mysql --protocol=tcp -h "$$node" -uroot -proot_password -e "
-                      STOP REPLICA;
-                      RESET REPLICA ALL;
-                      CHANGE REPLICATION SOURCE TO
-                        SOURCE_HOST='mysql-primary',
-                        SOURCE_USER='repl_user',
-                        SOURCE_PASSWORD='repl_password',
-                        SOURCE_AUTO_POSITION=1;
-                      START REPLICA;
-                      SET GLOBAL read_only = ON;
-                    "
-                  fi
-                done
-
-                docker exec proxysql mysql -uadmin -padmin -P6032 -e "
-                  UPDATE mysql_servers SET hostgroup_id=1 WHERE hostgroup_id=0;
-                  UPDATE mysql_servers SET hostgroup_id=0 WHERE hostname='mysql-primary';
-                  LOAD MYSQL SERVERS TO RUNTIME;
-                  SAVE MYSQL SERVERS TO DISK;
-                "
-
-                echo "✅ Failback concluído! O mysql-primary recuperou o posto de escrita."
-                ACTIVE_MASTER="mysql-primary"
-              fi
-            fi
-          fi
-        done
     networks:
-      - mysql-cluster
+      - redis-net
+
     depends_on:
-      init-replication:
-        condition: service_completed_successfully
-        
-  init-replication:
-    image: mysql:8.0.46
-    container_name: init-replication
-    restart: "no"
-    entrypoint: /bin/bash
+      redis-primary:
+        condition: service_healthy
+      redis-replica-1:
+        condition: service_healthy
+      redis-replica-2:
+        condition: service_healthy
+
+
+  sentinel-2:
+    image: redis:8-alpine
+    container_name: sentinel-2
+    restart: unless-stopped
+
     command:
+      - sh
       - -c
       - |
         set -e
-         MYSQL="mysql --protocol=tcp --connect-timeout=5"
-        ROOT="-uroot -proot_password"
 
-        echo "Aguardando MySQL Primary..."
+        if [ ! -f /data/sentinel.conf ]; then
+          until getent hosts redis-primary >/dev/null 2>&1; do
+            sleep 1
+          done
 
-        until $$MYSQL -h mysql-primary $$ROOT -e "SELECT 1" >/dev/null 2>&1; do
-        sleep 2
-        done
+          PRIMARY_IP=$$(getent hosts redis-primary | awk 'NR==1 {print $$1}')
 
-        echo "Criando usuário de replicação..."
+          sed "s/REDIS_PRIMARY_IP/$$PRIMARY_IP/" \
+            /config/sentinel.conf \
+            > /data/sentinel.conf
+        fi
 
-        $$MYSQL -h mysql-primary $$ROOT <<'SQL'
-        CREATE USER IF NOT EXISTS 'repl_user'@'%' IDENTIFIED WITH mysql_native_password BY 'repl_password';
-        GRANT REPLICATION SLAVE ON *.* TO 'repl_user'@'%';
-        FLUSH PRIVILEGES;
-        SQL
+        exec redis-sentinel /data/sentinel.conf
 
-        for REPLICA in mysql-replica-1 mysql-replica-2 mysql-replica-3; do
+    volumes:
+      - ./redis-config/sentinel.conf:/config/sentinel.conf:ro
+      - sentinel-2-data:/data
 
-        echo "Aguardando $$REPLICA ficar disponível..."
+    ports:
+      - "26380:26379"
 
-        until $$MYSQL -h "$$REPLICA" $$ROOT -e "SELECT 1" >/dev/null 2>&1; do
-          echo "  $$REPLICA ainda não está disponível..."
-          sleep 2
-        done
-
-        echo "Configurando $$REPLICA..."
-
-        $$MYSQL -h "$$REPLICA" $$ROOT -e "
-          STOP REPLICA;
-          RESET REPLICA ALL;
-        " 2>/dev/null || true
-
-        $$MYSQL -h "$$REPLICA" $$ROOT -e "
-          CHANGE REPLICATION SOURCE TO
-            SOURCE_HOST='mysql-primary',
-            SOURCE_PORT=3306,
-            SOURCE_USER='repl_user',
-            SOURCE_PASSWORD='repl_password',
-            SOURCE_AUTO_POSITION=1;
-          START REPLICA;
-        "
-
-        echo "✅ $$REPLICA configurada."
-
-        done
-
-        echo "=========================================="
-        echo "✅ Replicação inicial configurada."
-        echo "=========================================="
-        
     networks:
-      - mysql-cluster
+      - redis-net
+
     depends_on:
-      mysql-primary:
+      redis-primary:
         condition: service_healthy
-      mysql-replica-1:
+      redis-replica-1:
         condition: service_healthy
-      mysql-replica-2:
-        condition: service_healthy
-      mysql-replica-3:
-        condition: service_healthy
-      proxysql:
+      redis-replica-2:
         condition: service_healthy
 
-volumes:
-  primary_data:
-  replica1_data:
-  replica2_data:
-  replica3_data:
-  proxysql_data:
+
+  sentinel-3:
+    image: redis:8-alpine
+    container_name: sentinel-3
+    restart: unless-stopped
+
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+
+        if [ ! -f /data/sentinel.conf ]; then
+          until getent hosts redis-primary >/dev/null 2>&1; do
+            sleep 1
+          done
+
+          PRIMARY_IP=$$(getent hosts redis-primary | awk 'NR==1 {print $$1}')
+
+          sed "s/REDIS_PRIMARY_IP/$$PRIMARY_IP/" \
+            /config/sentinel.conf \
+            > /data/sentinel.conf
+        fi
+
+        exec redis-sentinel /data/sentinel.conf
+
+    volumes:
+      - ./redis-config/sentinel.conf:/config/sentinel.conf:ro
+      - sentinel-3-data:/data
+
+    ports:
+      - "26381:26379"
+
+    networks:
+      - redis-net
+
+    depends_on:
+      redis-primary:
+        condition: service_healthy
+      redis-replica-1:
+        condition: service_healthy
+      redis-replica-2:
+        condition: service_healthy
+
+
+  node:
+    image: node:26-alpine
+    container_name: redis-node
+    restart: "no"
+
+    working_dir: /app
+
+    volumes:
+      - ./:/app
+
+    environment:
+      REDIS_PASSWORD: redispassword
+
+    networks:
+      - redis-net
+
+    depends_on:
+      sentinel-1:
+        condition: service_started
+      sentinel-2:
+        condition: service_started
+      sentinel-3:
+        condition: service_started
+
+    command:
+      - sh
+      - -c
+      - |
+        npm install
+        node teste.js
+
 
 networks:
-  mysql-cluster:
+  redis-net:
     driver: bridge
+
+
+volumes:
+  redis-primary-data:
+  redis-replica-1-data:
+  redis-replica-2-data:
+  sentinel-1-data:
+  sentinel-2-data:
+  sentinel-3-data:
