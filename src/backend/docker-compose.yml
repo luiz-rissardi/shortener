@@ -811,11 +811,13 @@ services:
     image: node:26-alpine
     container_name: redis-node
     restart: "no"
-
     working_dir: /app
 
     volumes:
       - ./:/app
+
+    ports:
+      - "3000:3000"
 
     environment:
       REDIS_PASSWORD: redispassword
@@ -848,7 +850,26 @@ services:
       - |
         npm install
         node teste.js
+    
+  frontend:
+    build:
+      context: ../front-end
+      dockerfile: Dockerfile.dev
+    container_name: angular-frontend
+    restart: unless-stopped
 
+    working_dir: /app
+
+    volumes:
+      - ../front-end:/app
+      - /app/node_modules   # evita o node_modules do host sobrescrever o do container
+
+    ports:
+      - "4000:4000"
+
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - PORT=4000
 
 networks:
 

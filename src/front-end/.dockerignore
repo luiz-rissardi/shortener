@@ -1,0 +1,10 @@
+node_modules
+.angular
+dist
+.git
+.vscode
+.gemini
+*.log
+npm-debug.log*
+Dockerfile*
+docker-compose*
