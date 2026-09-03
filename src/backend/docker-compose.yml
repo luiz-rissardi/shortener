@@ -821,7 +821,6 @@ services:
 
     environment:
       REDIS_PASSWORD: redispassword
-
       MYSQL_HOST: proxysql
       MYSQL_PORT: 6033
       MYSQL_USER: app_user
@@ -849,28 +848,28 @@ services:
       - -c
       - |
         npm install
-        node teste.js
+        node server.js
     
   frontend:
     build:
       context: ../front-end
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
     container_name: angular-frontend
     restart: unless-stopped
-
     working_dir: /app
 
     volumes:
       - ../front-end:/app
-      - /app/node_modules   # evita o node_modules do host sobrescrever o do container
+      - /app/node_modules   # não deixa o node_modules do host sobrescrever o do container
+      - /app/dist           # idem, pro output de build
 
     ports:
       - "4000:4000"
 
     environment:
-      - CHOKIDAR_USEPOLLING=true
       - PORT=4000
-
+      - NODE_ENV=production
+      
 networks:
 
   redis-net:
