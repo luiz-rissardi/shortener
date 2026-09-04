@@ -10,7 +10,7 @@ services:
       - /etc/redis/redis.conf
 
     volumes:
-      - ./config/redis-master.conf:/etc/redis/redis.conf:ro
+      - ./redis-config/redis-master.conf:/etc/redis/redis.conf:ro
       - redis-primary-data:/data
 
     ports:
@@ -43,7 +43,7 @@ services:
       - /etc/redis/redis.conf
 
     volumes:
-      - ./config/redis-replica.conf:/etc/redis/redis.conf:ro
+      - ./redis-config/redis-replica.conf:/etc/redis/redis.conf:ro
       - redis-replica-1-data:/data
 
     ports:
@@ -80,7 +80,7 @@ services:
       - /etc/redis/redis.conf
 
     volumes:
-      - ./config/redis-replica.conf:/etc/redis/redis.conf:ro
+      - ./redis-config/redis-replica.conf:/etc/redis/redis.conf:ro
       - redis-replica-2-data:/data
 
     ports:
@@ -135,7 +135,7 @@ services:
         exec redis-sentinel /data/sentinel.conf
 
     volumes:
-      - ./config/sentinel.conf:/config/sentinel.conf:ro
+      - ./redis-config/sentinel.conf:/config/sentinel.conf:ro
       - sentinel-1-data:/data
 
     ports:
@@ -180,7 +180,7 @@ services:
         exec redis-sentinel /data/sentinel.conf
 
     volumes:
-      - ./config/sentinel.conf:/config/sentinel.conf:ro
+      - ./redis-config/sentinel.conf:/config/sentinel.conf:ro
       - sentinel-2-data:/data
 
     ports:
@@ -225,7 +225,7 @@ services:
         exec redis-sentinel /data/sentinel.conf
 
     volumes:
-      - ./config/sentinel.conf:/config/sentinel.conf:ro
+      - ./redis-config/sentinel.conf:/config/sentinel.conf:ro
       - sentinel-3-data:/data
 
     ports:
@@ -268,7 +268,6 @@ services:
       - "33061:3306"
 
     volumes:
-      - ./config/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
       - primary_data:/var/lib/mysql
 
     networks:
@@ -816,7 +815,7 @@ services:
 
     volumes:
       - ./:/app
-      
+
     ports:
       - "3000:3000"
 
@@ -849,9 +848,8 @@ services:
       - -c
       - |
         npm install
-        node ./shared/express/server-express.js
-
-        
+        node teste.js
+    
   frontend:
     build:
       context: ../front-end
@@ -871,7 +869,7 @@ services:
     environment:
       - PORT=4000
       - NODE_ENV=production
-
+      
 networks:
 
   redis-net:
