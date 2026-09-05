@@ -1,3 +1,4 @@
+import { Result } from "../../shared/utils/result.js";
 import { UrlService } from "./url-service.js";
 
 export class UrlController {
@@ -19,5 +20,18 @@ export class UrlController {
             result.setStatusCode(400);
         }
         return result
+    }
+
+    async getTargetUrl({ shortCode }) {
+        const result = await this.#service.getTargetUrl(shortCode);
+
+        if(result.isSuccess){
+            result.setStatusCode(302)
+        }else if(result.getValue().errorName = "UrlNotFound"){
+            result.setStatusCode(404)
+        }else{
+            result.setStatusCode(400)
+        }
+        return result;
     }
 }

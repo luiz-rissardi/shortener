@@ -29,4 +29,29 @@ export class ExpressAdapter {
             }
         }
     }
+
+    static adaptRedirect(action) {
+        return async (request, response) => {
+            try {
+                const { params, body, query } = request;
+                // passa params, query, e body com operadores spread como se fosse um "DTO"
+                // (não é essencialmente um DTO mas se comporta como um objeto para transferencia de dados)
+                const result = await action({ ...params, ...query, ...body });
+                
+                if(result.isSuccess){
+                    // redirecionar
+                    const url = result.getValue().targetUrl;
+                    response.status(result.statusCode).redirect(url)
+                }else{
+                    response.status(result.statusCode).end();
+                }
+
+            } catch (error) {
+                response.status(500).json(
+                    InternalServerError.create()
+                )
+
+            }
+        }
+    }
 }

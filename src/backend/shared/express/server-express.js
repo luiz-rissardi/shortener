@@ -42,5 +42,6 @@ function setupRoutes() {
 export function errorHandler(err, req, res, next) {
     if (res.headersSent) return next(err);
 
+    console.log(err);
     res.status(500).json(InternalServerError.create());
 }

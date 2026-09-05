@@ -23,6 +23,13 @@ export class UrlRoutes {
                 )
             )
 
+        this.#router.route("/:shortCode")
+            .get(
+                ExpressAdapter.adaptRedirect(
+                    this.#controller.getTargetUrl.bind(this.#controller)
+                )
+            )
+
         return this.#router
     }
 

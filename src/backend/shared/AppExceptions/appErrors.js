@@ -3,7 +3,7 @@
 export class UnexpectedError {
     constructor(errorMessage) {
         this.errorMessage = errorMessage;
-        this.name = "UnexpectedError"
+        this.errorName = "UnexpectedError"
     }
 
     static create(errorMessage) {
@@ -14,7 +14,7 @@ export class UnexpectedError {
 export class InternalServerError {
     constructor() {
         this.errorMessage = "internal server error"
-        this.errorMessage = "InternalServerError"
+        this.errorName = "InternalServerError"
     }
 
     static create() {
@@ -22,25 +22,24 @@ export class InternalServerError {
     }
 }
 
-// infra error
-export class ConnectioDataBaseError {
-    constructor() {
-        this.errorMessage = "Um erro de Conexão com banco de dados ocorreu";
-        this.name = "ConnectioDataBaseError";
-    }
-
-    static create() {
-        return new ConnectioDataBaseError();
-    }
-}
-
 export class RepositoryOperationError {
     constructor() {
         this.errorMessage = `Um erro ocorreu ao realizar a operação`;
-        this.name = "RepositoryOperationError";
+        this.errorName = "RepositoryOperationError";
     }
 
     static create() {
         return new RepositoryOperationError();
+    }
+}
+
+export class UrlNotFound {
+    constructor() {
+        this.errorMessage = `url não encontrada`;
+        this.errorName = "UrlNotFound";
+    }
+
+    static create() {
+        return new UrlNotFound();
     }
 }

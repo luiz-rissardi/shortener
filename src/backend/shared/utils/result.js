@@ -20,7 +20,6 @@ export class Result {
     }
     
     getValue(){
-        Object.freeze(this)
         if(this.isSuccess == false){
             return this.#error;
         }

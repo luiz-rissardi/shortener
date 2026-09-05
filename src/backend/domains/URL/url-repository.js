@@ -1,5 +1,6 @@
 import { createPool, PoolConnection } from "mysql2/promise";
 import { UrlModel } from "./url-model.js";
+import { RepositoryOperationError } from "../../shared/AppExceptions/appErrors.js";
 
 
 export class UrlRepository {
@@ -23,13 +24,37 @@ export class UrlRepository {
         return conn
     }
 
+    async putOne(shortCode,connection = null) {
+        try {
+            const executor = connection || this.#PoolConnection;
+            await executor.query("UPDATE urls SET accessCount = accessCount + 1 WHERE shortCode = ?", [shortCode])
+        } catch (error) {
+            throw RepositoryOperationError.create()
+        }
+    }
+
+    /**
+     * 
+     * @param {string} shortCode 
+     * @param {PoolConnection} connection 
+     */
+    async getOne(shortCode, connection = null) {
+        try {
+            const executor = connection || this.#PoolConnection;
+            const [result] = await executor.query("SELECT * FROM urls WHERE shortCode = ?", [shortCode])
+            return result;
+        } catch (error) {
+            throw RepositoryOperationError.create()
+        }
+    }
+
     /**
      * 
      * @param {UrlModel} urlModel 
      * @param {PoolConnection} connection 
      * @returns {Promise<Boolean>} true for insert if is successfully 
      */
-    async insertOne(urlModel, connection) {
+    async insertOne(urlModel, connection = null) {
         const executor = connection || this.#PoolConnection
         try {
             await executor.query(`
@@ -45,12 +70,12 @@ export class UrlRepository {
             )
             return true;
         } catch (error) {
-            
+
             if (error.code === "ER_DUP_ENTRY") {
                 return false; // colisão de verdade, esperado
             }
-            
-            throw error
+
+            throw RepositoryOperationError.create();
         }
     }
 
