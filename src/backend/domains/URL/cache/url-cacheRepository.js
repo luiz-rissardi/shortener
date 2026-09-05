@@ -16,7 +16,7 @@ export class UrlCacheRepository {
             this.#redisClient = redisClient
         }
         // set inicial para um alto valor de incremento (2 elevado á 13)
-        this.#setCounter(2**13)
+        this.#setCounter(2 ** 13)
     }
 
     // incr é atomico portando não sofremos com concorrencia, é tratado como fila pelo redis
@@ -33,8 +33,6 @@ export class UrlCacheRepository {
     }
 
     async cacheUrl(shortCode, targetUrl) {
-        return this.#redisClient.set(`${this.#urlCacheKey}:${shortCode}`, targetUrl, {
-            EX: this.#cacheTTLSeconds,
-        });
+        return this.#redisClient.set(`${this.#urlCacheKey}:${shortCode}`, targetUrl, "EX", this.#cacheTTLSeconds);
     }
 }

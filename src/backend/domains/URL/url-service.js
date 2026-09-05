@@ -71,7 +71,16 @@ export class UrlService {
         const connection = await this.#urlRepository.getConnection();
 
         try {
+            // verificar se existe no cache, se não vai para o banco de dados, depois seta o cache
+            const cache = await this.#urlCacheRepository.getCachedUrl(shortCode);
+
+            if (cache) {
+                return Result.ok({ targetUrl: cache })
+            }
+
             const data = await this.#urlRepository.getOne(shortCode, connection);
+            this.#urlCacheRepository.cacheUrl(shortCode, data[0].targetUrl)
+
             // se data for tamanho 0 significa que não pegou nenhum registro, portanto ele não existe
             if (data.length == 0) {
                 return Result.fail(UrlNotFound.create())
@@ -93,12 +102,12 @@ export class UrlService {
         try {
 
             await connection.beginTransaction();
-            await this.#urlRepository.putOne(shortCode,connection);        
+            await this.#urlRepository.putOne(shortCode, connection);
             await connection.commit();
 
         } catch (error) {
             console.log("não foi possivel atualizar contador da url");
-        }finally{
+        } finally {
             connection.release()
         }
     }
