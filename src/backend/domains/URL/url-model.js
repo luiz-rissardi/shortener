@@ -10,7 +10,7 @@ export class UrlModel {
     accessCount;
     sequenceId;
 
-    #hashService = new Hashids("Tester_de_Salt",7)
+    #hashService = new Hashids("Tester_de_Salt", 7)
 
     constructor(targetUrl, sequenceId) {
         this.sequenceId = sequenceId;
@@ -20,9 +20,18 @@ export class UrlModel {
         this.createdAt = DateFormat(new Date().toISOString());
     }
 
-    changeShortCode(sequenceId){
+    changeShortCode(sequenceId) {
         this.sequenceId = sequenceId;
         this.shortCode = this.#hashService.encode(sequenceId);
         return this
+    }
+
+    static isValid(targetUrl) {
+        try {
+            const strictUrlRegex = /^https?:\/\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:\/[a-zA-Z0-9\-._~%!$&'()*+,;=:@\/]*)?(?:\?[a-zA-Z0-9\-._~%!$&'()*+,;=:@\/?]*)?(?:#[a-zA-Z0-9\-._~%!$&'()*+,;=:@\/?]*)?$/;
+            return strictUrlRegex.test(targetUrl);
+        } catch (error) {
+            return false;
+        }
     }
 }

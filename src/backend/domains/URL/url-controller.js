@@ -13,7 +13,11 @@ export class UrlController {
 
     async createShortUrl({ targetUrl }) {
         const result = await this.#service.createUrlShorted(targetUrl)
-        result.setStatusCode(201);
+        if (result.isSuccess) {
+            result.setStatusCode(201);
+        } else {
+            result.setStatusCode(400);
+        }
         return result
     }
 }

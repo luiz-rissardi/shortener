@@ -2,6 +2,8 @@ import { UrlModel } from "./url-model.js";
 import { UrlRepository } from "./url-repository.js";
 import { UrlCacheRepository } from "./cache/url-cacheRepository.js";
 import { Result } from "../../shared/utils/result.js";
+import { UnexpectedError } from "../../shared/AppExceptions/appErrors.js";
+import { SequenceException, UrlInvalidException } from "../../shared/AppExceptions/domainError.js";
 
 
 export class UrlService {
@@ -29,10 +31,16 @@ export class UrlService {
         const connection = await this.#urlRepository.getConnection();
 
         try {
+
+            //antes de iniciar transação varifica se a targetUrl é valida
+            if(UrlModel.isValid(targetUrl) == false){
+                return Result.fail(UrlInvalidException.create())
+            }
+
             await connection.beginTransaction();
             const sequenceId = await this.#urlCacheRepository.getNextSequenceId();
             const model = new UrlModel(targetUrl, sequenceId);
-
+            
             // inserir no banco o modelo de dados
             const wasCreated = await this.#urlRepository.insertOne(model, connection);
             // esse caso é para quando ele vai inserir e já existe um registro com aquele shortCode
@@ -43,17 +51,17 @@ export class UrlService {
                 const test = await this.#urlRepository.insertOne(model, connection);
                 if (!test) {
                     await connection.rollback();
-                    return Result.fail("não foi possivel inserir com sequenceId atualizado !")
+                    return Result.fail(SequenceException.create())
                 }
             }
 
             await connection.commit();
-            return Result.ok({shortCode:model.shortCode});
+            return Result.ok({ shortCode: model.shortCode });
         } catch (error) {
             console.log(error);
             await connection.rollback();
-            return Result.fail(`Erro ao encurtar URL`);
-        } finally{
+            return Result.fail(UnexpectedError.create(`Erro ao encurtar URL`));
+        } finally {
             connection.release()
         }
     }

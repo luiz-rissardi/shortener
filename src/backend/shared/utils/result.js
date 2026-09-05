@@ -1,19 +1,19 @@
 
 /*
-padrão result foi escolhido para a manipulação de erros de 
-aplicação par evitar o uso exesivo de TryCatch, foi preferido no lugar do Either 
-pois ele é mais simple e mais 'claro' em questão de namoclatura mas ambos resolvem 
+uma pequena variação do padrão RESULT foi escolhido para a manipulação de erros de 
+aplicação e exceções par evitar o uso exesivo de TryCatch, foi preferido no lugar do Either 
+pois ele é mais simple e mais 'claro' em questão de namoclatura, mas ambos resolvem 
 o mesmo problema.
 */
 export class Result {
     isSuccess;
-    error;
     statusCode;
-    #value; // private atributte
+    #error; 
+    #value;
 
     constructor(isSuccess,error,value) {
         this.isSuccess = isSuccess;
-        this.error = error;
+        this.#error = error;
         this.statusCode = 200;
         this.#value = value;
 
@@ -21,6 +21,9 @@ export class Result {
     
     getValue(){
         Object.freeze(this)
+        if(this.isSuccess == false){
+            return this.#error;
+        }
         return this.#value
     }
 
