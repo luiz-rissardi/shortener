@@ -1,4 +1,3 @@
-import { Result } from "../../shared/utils/result.js";
 import { UrlService } from "./url-service.js";
 
 export class UrlController {

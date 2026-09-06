@@ -2,6 +2,8 @@ import { HashId } from "../../shared/utils/hashFunction.js";
 import { DateFormat } from "../../shared/utils/dateFormat.js";
 
 
+const hashService = new HashId()
+
 export class UrlModel {
 
     shortCode;
@@ -10,19 +12,17 @@ export class UrlModel {
     accessCount;
     sequenceId;
 
-    #hashService = new HashId()
-
     constructor(targetUrl, sequenceId) {
         this.sequenceId = sequenceId;
         this.targetUrl = targetUrl;
         this.accessCount = 0;
-        this.shortCode = this.#hashService.encode(sequenceId);
+        this.shortCode = hashService.encode(sequenceId);
         this.createdAt = DateFormat(new Date().toISOString());
     }
 
     changeShortCode(sequenceId) {
         this.sequenceId = sequenceId;
-        this.shortCode = this.#hashService.encode(sequenceId);
+        this.shortCode = hashService.encode(sequenceId);
         return this
     }
 

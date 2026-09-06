@@ -27,7 +27,7 @@ export class UrlService {
      * no banco de dados o modelo de dados.
      */
     async createUrlShorted(targetUrl) {
-        let connection;
+        let connection = null;
 
         try {
 
@@ -35,7 +35,6 @@ export class UrlService {
             if (UrlModel.isValid(targetUrl) == false) {
                 return Result.fail(UrlInvalidException.create())
             }
-
 
             const sequenceId = await this.#urlCacheRepository.getNextSequenceId();
             const model = new UrlModel(targetUrl, sequenceId);
@@ -64,7 +63,9 @@ export class UrlService {
             await connection.rollback();
             return Result.fail(UnexpectedError.create(`Erro ao encurtar URL`));
         } finally {
-            connection.release()
+            if (connection) {
+                connection.release();
+            }
         }
     }
 
@@ -72,18 +73,18 @@ export class UrlService {
     // caso a url existir deve retornar ela mesmo assim, 
     // pois para esse app, encurtar e redirecionar a url é mais importante
     async getTargetUrl(shortCode) {
-        let connection;
+        let connection = null;
 
         try {
+            connection = await this.#urlRepository.getConnection();
 
             // verificar se existe no cache, se não vai para o banco de dados, depois seta o cache
             const cache = await this.#urlCacheRepository.getCachedUrl(shortCode);
-
             if (cache) {
+                this.#addViewInUrl(shortCode,connection);
                 return Result.ok({ targetUrl: cache })
             }
 
-            connection = await this.#urlRepository.getConnection();
             const data = await this.#urlRepository.getOne(shortCode, connection);
             this.#urlCacheRepository.cacheUrl(shortCode, data[0].targetUrl)
 
@@ -99,7 +100,9 @@ export class UrlService {
         } catch (error) {
             return Result.fail(UnexpectedError.create(`não foi possível pegar url, tente novamente mais tarde`));
         } finally {
-            connection.release()
+            if (connection) {
+                connection.release()
+            }
         }
     }
 
@@ -119,18 +122,13 @@ export class UrlService {
         }
     }
 
-    async #addViewInUrl(shortCode) {
-        const connection = await this.#urlRepository.getConnection();
-        try {
+    async #addViewInUrl(shortCode, connection) {
 
-            await connection.beginTransaction();
+        try {
             await this.#urlRepository.putOne(shortCode, connection);
-            await connection.commit();
 
         } catch (error) {
             console.log("não foi possivel atualizar contador da url");
-        } finally {
-            connection.release()
         }
     }
 }

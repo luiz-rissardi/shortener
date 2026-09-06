@@ -849,7 +849,7 @@ services:
       - -c
       - |
         npm install
-        node ./shared/express/server-express.js
+        node ./infra/cluster/cluster-server.js
         
   frontend:
     build:

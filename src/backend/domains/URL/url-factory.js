@@ -1,4 +1,4 @@
-import { RedisClient } from "../../shared/cache/redisClient.js";
+import { RedisClient } from "../../infra/cache/redisClient.js";
 import { UrlCacheRepository } from "./cache/url-cacheRepository.js";
 import { UrlController } from "./url-controller.js";
 import { UrlRepository } from "./url-repository.js";

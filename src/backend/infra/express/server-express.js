@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { UrlRoutes } from "./routers-express.js";
 import { RedisClient } from "../cache/redisClient.js";
-import { InternalServerError } from "../AppExceptions/appErrors.js";
+import { InternalServerError } from "../../shared/AppExceptions/appErrors.js";
 import { UrlRepository } from "../../domains/URL/url-repository.js";
 import { UrlCacheRepository } from "../../domains/URL/cache/url-cacheRepository.js";
 
