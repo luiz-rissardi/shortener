@@ -25,11 +25,22 @@ export class UrlController {
     async getTargetUrl({ shortCode }) {
         const result = await this.#service.getTargetUrl(shortCode);
 
-        if(result.isSuccess){
+        if (result.isSuccess) {
             result.setStatusCode(302)
-        }else if(result.getValue().errorName = "UrlNotFound"){
+        } else if (result.getValue().errorName = "UrlNotFound") {
             result.setStatusCode(404)
-        }else{
+        } else {
+            result.setStatusCode(400)
+        }
+        return result;
+    }
+
+    async getAllUrls() {
+        const result = await this.#service.getAllUrls();
+
+        if (result.isSuccess) {
+            result.setStatusCode(200)
+        } else {
             result.setStatusCode(400)
         }
         return result;

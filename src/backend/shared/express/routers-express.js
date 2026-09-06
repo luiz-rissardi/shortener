@@ -23,6 +23,13 @@ export class UrlRoutes {
                 )
             )
 
+        this.#router.route("/api/getAll")
+            .get(
+                ExpressAdapter.adapt(
+                    this.#controller.getAllUrls.bind(this.#controller)
+                )
+            )
+
         this.#router.route("/:shortCode")
             .get(
                 ExpressAdapter.adaptRedirect(

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS urls(
     targetUrl LONGTEXT NOT NULL,
     createdAt DATETIME,
     accessCount INT,
-    sequenceId INT UNIQUE NOT NULL
+    sequenceId BIGINT UNIQUE NOT NULL
 );
 
 

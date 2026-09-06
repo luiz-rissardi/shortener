@@ -27,18 +27,21 @@ export class UrlService {
      * no banco de dados o modelo de dados.
      */
     async createUrlShorted(targetUrl) {
-        const connection = await this.#urlRepository.getConnection();
+        let connection;
 
         try {
+
             //antes de iniciar transação varifica se a targetUrl é valida
             if (UrlModel.isValid(targetUrl) == false) {
                 return Result.fail(UrlInvalidException.create())
             }
 
-            await connection.beginTransaction();
+
             const sequenceId = await this.#urlCacheRepository.getNextSequenceId();
             const model = new UrlModel(targetUrl, sequenceId);
 
+            connection = await this.#urlRepository.getConnection();
+            await connection.beginTransaction();
             // inserir no banco o modelo de dados
             const wasCreated = await this.#urlRepository.insertOne(model, connection);
             // esse caso é para quando ele vai inserir e já existe um registro com aquele shortCode
@@ -46,6 +49,7 @@ export class UrlService {
             if (!wasCreated) {
                 const newSequenceId = await this.#urlRepository.findLastedSequenceId(connection) + 1;
                 model.changeShortCode(newSequenceId);
+                this.#urlCacheRepository.setCounter(newSequenceId)
                 const test = await this.#urlRepository.insertOne(model, connection);
                 if (!test) {
                     await connection.rollback();
@@ -68,9 +72,10 @@ export class UrlService {
     // caso a url existir deve retornar ela mesmo assim, 
     // pois para esse app, encurtar e redirecionar a url é mais importante
     async getTargetUrl(shortCode) {
-        const connection = await this.#urlRepository.getConnection();
+        let connection;
 
         try {
+
             // verificar se existe no cache, se não vai para o banco de dados, depois seta o cache
             const cache = await this.#urlCacheRepository.getCachedUrl(shortCode);
 
@@ -78,6 +83,7 @@ export class UrlService {
                 return Result.ok({ targetUrl: cache })
             }
 
+            connection = await this.#urlRepository.getConnection();
             const data = await this.#urlRepository.getOne(shortCode, connection);
             this.#urlCacheRepository.cacheUrl(shortCode, data[0].targetUrl)
 
@@ -89,6 +95,22 @@ export class UrlService {
             this.#addViewInUrl(shortCode);
             // retorna o objeto UrlModel
             return Result.ok(data[0])
+
+        } catch (error) {
+            return Result.fail(UnexpectedError.create(`não foi possível pegar url, tente novamente mais tarde`));
+        } finally {
+            connection.release()
+        }
+    }
+
+    async getAllUrls() {
+
+        let connection;
+
+        try {
+            connection = await this.#urlRepository.getConnection();
+            const result = await this.#urlRepository.getAll(connection);
+            return Result.ok(result);
 
         } catch (error) {
             return Result.fail(UnexpectedError.create(`não foi possível pegar url, tente novamente mais tarde`));

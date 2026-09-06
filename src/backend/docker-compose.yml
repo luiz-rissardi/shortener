@@ -850,7 +850,6 @@ services:
       - |
         npm install
         node ./shared/express/server-express.js
-
         
   frontend:
     build:

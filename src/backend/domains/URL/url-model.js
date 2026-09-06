@@ -1,4 +1,4 @@
-import Hashids from "hashids"
+import { HashId } from "../../shared/utils/hashFunction.js";
 import { DateFormat } from "../../shared/utils/dateFormat.js";
 
 
@@ -10,7 +10,7 @@ export class UrlModel {
     accessCount;
     sequenceId;
 
-    #hashService = new Hashids("Tester_de_Salt", 7)
+    #hashService = new HashId()
 
     constructor(targetUrl, sequenceId) {
         this.sequenceId = sequenceId;

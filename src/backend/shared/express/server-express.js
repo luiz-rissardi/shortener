@@ -1,47 +1,55 @@
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
-import dotenv from "dotenv"
+import dotenv from "dotenv";
 import { UrlRoutes } from "./routers-express.js";
 import { RedisClient } from "../cache/redisClient.js";
 import { InternalServerError } from "../AppExceptions/appErrors.js";
+import { UrlRepository } from "../../domains/URL/url-repository.js";
+import { UrlCacheRepository } from "../../domains/URL/cache/url-cacheRepository.js";
 
+dotenv.config();
 
-RedisClient.init()
+async function bootstrap() {
+    const redis = RedisClient.getInstance();
+    
+    const urlRepository = new UrlRepository();
+    const urlCacheRepository = new UrlCacheRepository(redis.getClient());
 
-const app = express();
+    const maxId = await urlRepository.findLastedSequenceId();
+    await urlCacheRepository.recoverCounter(maxId ?? 0);
 
-dotenv.config()
-app.use(express.json());
-app.use(helmet());
-app.use(cors({
-    origin: "*"
-}));
+    const app = express();
 
-//rotas
-const { urlRoutes } = setupRoutes()
-app.use(urlRoutes.getRoutes());
+    app.use(express.json());
+    app.use(helmet());
+    app.use(cors({ origin: "*" }));
 
-//error handler
-app.use(errorHandler)
+    const { urlRoutes } = setupRoutes();
+    app.use(urlRoutes.getRoutes());
 
-app.listen(3000)
-    .on("listening", () => {
-        console.log(`server is running at port 3000`);
-    })
+    app.use(errorHandler);
 
-function setupRoutes() {
-
-    const urlRoutes = new UrlRoutes()
-
-    return {
-       urlRoutes
-    }
+    app.listen(3000, () => {
+        console.log("Server is running at port 3000, sequence counter recovered.");
+    });
 }
 
-export function errorHandler(err, req, res, next) {
+function setupRoutes() {
+    const urlRoutes = new UrlRoutes();
+    return {
+        urlRoutes
+    };
+}
+
+function errorHandler(err, req, res, next) {
     if (res.headersSent) return next(err);
 
     console.log(err);
     res.status(500).json(InternalServerError.create());
 }
+
+bootstrap().catch((err) => {
+    console.error("Failed to start application:", err);
+    process.exit(1);
+});
