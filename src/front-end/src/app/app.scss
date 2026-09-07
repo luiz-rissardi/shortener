@@ -1,0 +1,46 @@
+@use "../styles/vars" as *;
+
+.header {
+    background: $color-bg;
+    color: $color-text;
+    font-family: $font-family;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 61px;
+    padding: 18px 40px;
+    border-bottom: 1px solid $color-divider;
+
+    &__logo {
+        font-size: 19px;
+        font-weight: 500;
+        line-height: 1.2;
+    }
+
+    &__nav {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+    }
+
+    &__nav-item {
+        appearance: none;
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 1.55;
+        color: $text-secondary-60;
+
+        &--active {
+            color: $color-text;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+            text-decoration-thickness: 2px;
+            text-decoration-color: $color-accent;
+        }
+    }
+}

@@ -1,7 +1,44 @@
+<div class="page">
 
+    <section class="content">
+        <h1 class="content__title">Encurte uma URL</h1>
+        <p class="content__subtitle">Cole o link longo abaixo e gere um endereço curto para compartilhar.</p>
 
-<h1>teste de home</h1>
+        <form class="shorten-form" [formRoot]="this.urlForm">
+            <div class="shorten-form__field">
+                <label class="shorten-form__label" for="targetUrl">URL original</label>
+                <div class="shorten-form__row">
+                    <div style="display: flex; flex-direction: column; width: 100%;">
+                        <input id="targetUrl" class="shorten-form__input" type="url"
+                            [formField]="this.urlForm.targetUrl"
+                            placeholder="https://exemplo.com/pagina-com-endereco-muito-longo" autocomplete="off" />
+                        @if(this.urlForm.targetUrl().touched() && this.urlForm.targetUrl().invalid()){
+                        <span class="input-invalid"> {{ this.urlForm.targetUrl().errors()[0].message }} </span>
+                        }
+                    </div>
+                    <button type="submit" class="shorten-form__submit">Encurtar</button>
+                </div>
+            </div>
+        </form>
 
-<button type="button" (click)="click()" >clicque aqui</button>
+        <div class="result" [class.result--empty]="!this.urlForm.targetUrl().value()">
+            @if (
+            this.state.shortCode() != null &&
+            this.state.load() &&
+            this.state.error() == null ) {
 
-<p>olha como eu sou bonito</p>
+            <span class="result__url">{{ this.state.shortCode() }}</span>
+
+            } @else if(this.state.error() != null) {
+
+            <span class="result__placeholder"> {{ this.state.error() }} </span>
+
+            }@else{
+
+            <span class="result__placeholder">O link curto aparece aqui depois de encurtar</span>
+
+            }
+
+        </div>
+    </section>
+</div>
