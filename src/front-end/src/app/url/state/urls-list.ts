@@ -39,6 +39,15 @@ export class UrlsListState {
         }));
     }
 
+    removeOne(shortCode: string) {
+        this.state.update(state => {
+            return {
+                ...state,
+                urls: state.urls.filter(el => el.shortCode !== shortCode)
+            }
+        })
+    }
+
     setError(message: string): void {
         this.state.update((s) => ({ ...s, error: message, load: false }));
     }

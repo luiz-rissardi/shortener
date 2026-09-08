@@ -26,14 +26,14 @@
                         <span class="truncate"> {{ urlModel.targetUrl | longTextPipe }} </span>
                     </td>
                     <td class="col-short">
-                        <a href="http://localhost:3000/{{urlModel.shortCode}}" target="_blank" rel="noopener">
+                        <a (click)="this.addView(urlModel)" href="http://localhost:3000/{{urlModel.shortCode}}" target="_blank" rel="noopener">
                             http://localhost:3000/{{urlModel.shortCode}} </a>
                     </td> 
                     <td class="col-date"> {{urlModel.createdAt | date:'dd/MM/yyyy' }} </td>
                     <td class="col-clicks"> {{urlModel.accessCount}} </td>
                     <td class="col-actions">
-                        <button type="button" class="btn-copy">Copiar</button>
-                        <button type="button" class="btn-delete">Excluir</button>
+                        <button type="button" class="btn-copy" (click)="this.copy(urlModel.shortCode)">Copiar</button>
+                        <button type="button" class="btn-delete" (click)="openModal(urlModel)">Excluir</button>
                     </td>
                 </tr>
                 }
@@ -42,3 +42,5 @@
         </table>
     </div>
 </div>
+
+<app-url-delete-modal [(status)]="this.statusModal" [(urlModel)]="this.chosenUrlModel" ></app-url-delete-modal>

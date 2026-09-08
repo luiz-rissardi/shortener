@@ -8,3 +8,7 @@ body{
     display: flex;
     flex-direction: column;
 }
+
+button{
+    pointer-events: all;
+}

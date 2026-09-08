@@ -10,7 +10,6 @@
 }
 
 .shorten-form {
-    max-width: $form-max;
     margin-top: 40px;
 
     &-label {
@@ -27,6 +26,7 @@
         display: flex;
         align-items: stretch;
         gap: 12px;
+        max-width: 990px;
     }
 
     &-input {
@@ -41,6 +41,8 @@
         font-size: 15px;
         font-weight: 400;
         line-height: 1.2;
+        width: 100%;
+        max-width: 865px;
 
         &::placeholder {
             color: $text-secondary-40;

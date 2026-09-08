@@ -13,10 +13,18 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
-    gap:650px;
+    display: flex;
+    justify-content: center;
     height: 61px;
     padding: 18px 40px;
     border-bottom: 1px solid $color-divider;
+
+    &-content{
+        width: 100%;
+        max-width: $container-max;
+        display: flex;
+        justify-content: space-between;
+    }
 
     &-logo {
         font-size: 19px;
@@ -43,7 +51,7 @@
         color: $text-secondary-60;
 
         &--active {
-            color: $color-text;
+            color: $color-accent;
             text-decoration: underline;
             text-underline-offset: 4px;
             text-decoration-thickness: 2px;

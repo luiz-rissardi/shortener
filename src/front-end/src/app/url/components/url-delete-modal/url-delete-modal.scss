@@ -1,0 +1,101 @@
+@use "../../../../styles/vars.scss" as *;
+
+.modal {
+    &-content {
+        width: 480px;
+        padding: 28px;
+        background-color: $color-surface;
+        gap: 16px;
+        border-radius: 10px;
+    }
+
+    &-title {
+        font-size: 22px;
+        margin: 0;
+        font-family: $font-family;
+        font-weight: 500;
+        color: $color-text;
+    }
+
+    &-subtitle {
+        font-size: 15px;
+        font-family: $font-family;
+        font-weight: 400;
+        color: $text-secondary-60;
+    }
+
+    &-url {
+        &-container {
+            height: auto;
+            background-color: $color-bg;
+            border-radius: 12px;
+            padding: 20px;
+            border: 0.5px solid $color-tag-bg;
+        }
+    }
+}
+
+.targetUrl,
+.count {
+    font-size: 15px;
+    white-space: nowrap;
+    font-family: $font-family;
+    font-weight: 400;
+    color: $text-secondary-60;
+}
+
+.shortCode {
+    font-size: 18px;
+    font-family: $font-family;
+    font-weight: 500;
+    color: $color-text;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+dialog {
+    border: none;
+    border-radius: 8px;
+    padding: 2rem;
+}
+
+.btn{
+
+    &s{
+        margin: 16px;
+        display: flex;
+        justify-content: end;
+        gap: 10px;
+    }
+
+    &-close{
+        background-color: transparent;
+        font-family: $font-family;
+        border: 1px solid $color-text;
+        font-size: 13px;
+        font-weight: 400;
+        border-radius: 10px;
+        padding:14px 28px;
+        color: $color-text;
+        pointer-events: all;
+    }
+
+    &-delete{
+        background-color: transparent;
+        font-family: $font-family;
+        border: 1px solid $color-accent;
+        font-size: 13px;
+        font-weight: 400;
+        border-radius: 10px;
+        padding:14px 28px;
+        color: $color-accent;
+        pointer-events: all;
+    }
+}

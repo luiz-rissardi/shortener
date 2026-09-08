@@ -11,8 +11,16 @@ export class UrlHttp {
             targetUrl
         })
     }
-
+    
     getAllUrls(){
         return this.http.get("http://localhost:3000/api/getAll")
+    }
+    
+    deleteUrl(shortCode:string){
+        return this.http.delete("http://localhost:3000/api/shortUrl",{
+            body:{
+                shortCode
+            }
+        })
     }
 }

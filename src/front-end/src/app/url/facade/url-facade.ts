@@ -43,4 +43,13 @@ export class UrlFacade {
             this.urlListState.setError("não foi possivel pegar as urls")
         }
     }
+
+    deleteUrlModel(shortCode: string) {
+        try {
+            this.urlHttp.deleteUrl(shortCode)
+                .subscribe()
+        } catch (error) {
+            console.log("não foi possivel deletar a url");
+        }
+    }
 }

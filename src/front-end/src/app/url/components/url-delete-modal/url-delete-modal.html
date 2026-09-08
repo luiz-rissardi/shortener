@@ -1,0 +1,17 @@
+
+
+<dialog class="modal-content" #modal>
+  <h2 class="modal-title">Excluir esse link?</h2>
+  <p class="modal-subtitle">O link curto deixará de funcionar imediatamente e o historico de clique será perdido. Está ação não pode ser desfeita.</p>
+
+  <section class="modal-url-container">
+    <h3 class="shortCode"> 	http://localhost:3000/{{this.urlModel().shortCode}} </h3>
+    <p class="targetUrl"> {{ this.urlModel().targetUrl| longTextPipe:50 }} </p>
+    <p class="count"> {{ this.urlModel().accessCount }} cliques </p>
+  </section>
+
+  <section class="btns">
+    <button type="button" class="btn-close" (click)="this.close()"> Cancelar </button>
+    <button type="button" class="btn-delete" (click)="this.deleteUrl()"> Excluir link </button>
+  </section>
+</dialog>
