@@ -1,22 +1,21 @@
 import { Routes } from '@angular/router';
-import { Home } from './pages/home/home';
 import { ListUrls } from './pages/list-urls/list-urls';
 import { prefetchingResolver } from './url/resolvers/prefecthing-resolver';
 
 export const routes: Routes = [
     {
-        path:"home",
-        component:Home
+        path: "home",
+        loadComponent: () => import("./pages/home/home").then(c => c.Home)
     },
     {
-        path:"list",
-        component:ListUrls,
-        resolve:{
-            urls:prefetchingResolver
+        path: "list",
+        component: ListUrls,
+        resolve: {
+            urls: prefetchingResolver
         }
     },
     {
-        path:"**",
-        redirectTo:"home"        
+        path: "**",
+        redirectTo: "home"
     }
 ];

@@ -4,17 +4,17 @@
 
     <nav class="header-nav">
       <button type="button" class="header-nav-item" [class.header-nav-item--active]="activeTab() === 'encurtar'"
-        (click)="setTab('encurtar')"
-        routerLink="/home">
+        (click)="setTab('encurtar')" routerLink="/home">
         Encurtar
       </button>
       <button type="button" class="header-nav-item" [class.header-nav-item--active]="activeTab() === 'meus-links'"
-        (click)="setTab('meus-links')"
-        routerLink="/list">
+        (click)="setTab('meus-links')" routerLink="/list">
         Meus links
       </button>
     </nav>
   </div>
 </header>
 
-<router-outlet></router-outlet>
+<main class="main-content">
+  <router-outlet></router-outlet>
+</main>

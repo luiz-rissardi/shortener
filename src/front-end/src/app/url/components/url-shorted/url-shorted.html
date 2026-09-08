@@ -4,12 +4,12 @@
         <div class="shorten-form-row">
             <input id="targetUrl" class="shorten-form-input" type="url" [formField]="this.urlForm.targetUrl"
                 placeholder="https://exemplo.com/pagina-com-endereco-muito-longo" autocomplete="off" />
+            <button type="submit" class="shorten-btn">Encurtar</button>
+        </div>
             @if(
             this.urlForm.targetUrl().touched() &&
             this.urlForm.targetUrl().invalid()){
             <span class="input-invalid"> {{ this.urlForm.targetUrl().errors()[0].message }} </span>
             }
-            <button type="submit" class="shorten-btn">Encurtar</button>
-        </div>
     </div>
 </form>

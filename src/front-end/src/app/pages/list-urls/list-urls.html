@@ -1,6 +1,8 @@
 <div class="page">
 
-    <app-url-shorted></app-url-shorted>
+    @defer (hydrate on viewport) {
+        <app-url-shorted></app-url-shorted>
+    }
 
     <section class="table-information">
         <h2 class="table-information-title">Links criados</h2>

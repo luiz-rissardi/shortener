@@ -39,6 +39,16 @@ padrões de arquitetura:
 
 
 
+CONSIDERAR SEGUINTES MELHORIAS:
+
+    Usar child process no node para aumentar o I/O da api
+    criar elementos skeletons no angular para melhor UI/UX
+    criar paginação na pagina para melhor UI/UX
+    criar design responsivo para melhor UI/UX
+    criar poopups de notificação de sucesso ou erro nas operações dos usuários
+    criar autenticação
+    criar idempotencia no endpoint POST /api/shortUrl
+
 
 
 

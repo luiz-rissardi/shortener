@@ -59,3 +59,34 @@
         }
     }
 }
+
+.main-content {
+  view-transition-name: router-view;
+}
+
+::view-transition-group(router-view) {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-old(router-view) {
+  animation-name: fadeScaleOut;
+}
+
+::view-transition-new(router-view) {
+  animation-name: fadeScaleIn;
+}
+
+@keyframes fadeScaleOut {
+  to {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes fadeScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(1.03);
+  }
+}
