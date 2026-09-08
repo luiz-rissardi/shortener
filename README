@@ -1,0 +1,44 @@
+
+
+para rodar esse projeto deve-se executar os seguintes comandos:
+
+cd ./src/backend (ou use camandos que entram em pasta no seu SO)
+docker compose up -d --build  (esperar o build e todos os containers estiverem vivos)
+
+(esperar alguns segundos para o backend e frontend darem o bootstrap);
+
+frontend: porta 4000
+    /home
+    /list
+backend: porta 3000
+    GET /api/getAll
+    GET /{shortCode}
+    POST /api/shortUrl
+    DELETE /api/shortUrl
+
+
+padrões de engenharia de software usados no backend:
+    Adapter
+    Repository
+    strategy
+    create
+    result
+
+padrões de engenharia de software usados no frontend:
+    Facade
+    dumb and smart components
+    global state
+
+padrões de arquitetura:
+    Aside Cache
+    clean Arquitecture
+    clean code
+    HA mysql
+    HA (sentinels) redis (para servidor unico)
+    HA clustering apiWeb (varias instancias do servidor para aproveitar ao maximo os recursos da maquina) 
+
+
+
+
+
+

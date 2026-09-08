@@ -11,3 +11,5 @@ CREATE TABLE IF NOT EXISTS urls(
 
 CREATE INDEX sequence_id on urls(sequenceId);
 
+
+

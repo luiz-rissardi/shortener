@@ -16,6 +16,12 @@ export class UrlFacade {
             this.urlHttp.saveTargetUrl(targetUrl)
                 .subscribe({
                     next: (value: any) => {
+                        this.urlListState.addOne({
+                            accessCount:0,
+                            shortCode:value.shortCode,
+                            targetUrl,
+                            createdAt: new Date().toISOString()
+                        })
                         this.urlState.setTargetUrl(targetUrl)
                         this.urlState.setShortCode(value.shortCode)
                     },

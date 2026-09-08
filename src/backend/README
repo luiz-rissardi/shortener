@@ -3,6 +3,9 @@ docker compose down -v
 docker compose up -d
 docker compose ps
 docker compose logs cluster-setup
+
+NÃO RODAR ESSES COMANDOS, POIS ELES SÃO ANTIGOS E SERVIRAM APENAS PARA TESTE
+
 docker exec proxysql mysql -uadmin -padmin -P6032 -e "SELECT 1;"
 docker exec proxysql mysql -uadmin -padmin -P6032 -e "UPDATE global_variables SET variable_value='0.0.0.0:6033' WHERE variable_name='mysql-interfaces'; LOAD MYSQL VARIABLES TO RUNTIME; SAVE MYSQL VARIABLES TO DISK;"
 docker exec proxysql mysql -uadmin -padmin -P6032 -e "UPDATE global_variables SET variable_value='0.0.0.0:6032' WHERE variable_name='admin-mysql_ifaces'; LOAD ADMIN VARIABLES TO RUNTIME; SAVE ADMIN VARIABLES TO DISK;"

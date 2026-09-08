@@ -20,7 +20,7 @@
             </thead>
             <tbody>
                 @if(this.state.load()){
-                @for (urlModel of this.state.urls(); track urlModel.shortCode) {
+                @for (urlModel of this.state.urls(); track $index) {
                 <tr>
                     <td class="col-original">
                         <span class="truncate"> {{ urlModel.targetUrl | longTextPipe }} </span>

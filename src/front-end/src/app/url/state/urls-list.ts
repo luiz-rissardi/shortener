@@ -27,7 +27,7 @@ export class UrlsListState {
 
     private readonly state = signal<UrlListStateModel>(initialState);
 
-    readonly urls = computed(() => this.state().urls);
+    readonly urls = computed(() => this.state().urls.reverse());
     readonly load = computed(() => this.state().load);
     readonly error = computed(() => this.state().error);
 
@@ -44,6 +44,15 @@ export class UrlsListState {
             return {
                 ...state,
                 urls: state.urls.filter(el => el.shortCode !== shortCode)
+            }
+        })
+    }
+
+    addOne(urlModel: UrlModel) {
+        this.state.update(state => {
+            return {
+                ...state,
+                urls: [...state.urls, urlModel]
             }
         })
     }
