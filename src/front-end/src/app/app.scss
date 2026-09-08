@@ -1,29 +1,36 @@
 @use "../styles/vars" as *;
 
+
+.container{
+    display: flex;
+    justify-content: center;
+}
+
 .header {
     background: $color-bg;
     color: $color-text;
     font-family: $font-family;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
+    gap:650px;
     height: 61px;
     padding: 18px 40px;
     border-bottom: 1px solid $color-divider;
 
-    &__logo {
+    &-logo {
         font-size: 19px;
         font-weight: 500;
         line-height: 1.2;
     }
 
-    &__nav {
+    &-nav {
         display: flex;
         align-items: center;
         gap: 28px;
     }
 
-    &__nav-item {
+    &-nav-item {
         appearance: none;
         background: none;
         border: none;

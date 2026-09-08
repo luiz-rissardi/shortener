@@ -23,6 +23,13 @@ export class UrlRoutes {
                 )
             )
 
+        this.#router.route("/api/shortUrl")
+            .delete(
+                ExpressAdapter.adapt(
+                    this.#controller.deleteUrl.bind(this.#controller)
+                )
+            )
+
         this.#router.route("/api/getAll")
             .get(
                 ExpressAdapter.adapt(

@@ -44,4 +44,14 @@ export class UrlController {
         }
         return result;
     }
+
+    async deleteUrl({ shortCode }) {
+        const result = await this.#service.deleteTargetUrl(shortCode);
+        if (result.isSuccess) {
+            result.setStatusCode(200)
+        } else {
+            result.setStatusCode(400)
+        }
+        return result;
+    }
 }

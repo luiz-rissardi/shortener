@@ -1,0 +1,179 @@
+@use "../../../styles/vars.scss" as *;
+
+:host {
+    display: flex;
+    background: $color-bg;
+    min-height: 86vh;
+    width: 100%;
+    color: $color-text;
+    font-family: $font-family;
+}
+
+.page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+    padding-top: 50px;
+}
+
+.table {
+    &-container {
+        width: 100%;
+        overflow-x: auto;
+        background-color: transparent;
+    }
+
+    &-information {
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+        margin-top: 48px;
+        margin-bottom: 24px;
+    }
+
+    &-information-title {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+        line-height: 1.12;
+    }
+
+    &-information-description {
+        margin: 0;
+        font-size: 13px;
+        font-weight: 500;
+        color: $text-secondary-60;
+    }
+}
+
+.links-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: $font-family;
+    text-align: left;
+    table-layout: fixed;
+
+    thead {
+        th {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: $text-secondary-60;
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            text-align: left;
+        }
+    }
+
+    tbody {
+        tr {
+            transition: background-color 0.2s ease;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.02);
+            }
+
+            &:last-child td {
+                border-bottom: none;
+            }
+        }
+
+        td {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            vertical-align: middle;
+        }
+    }
+
+    .col-original {
+        width: 38%;
+        padding-right: 20px;
+
+        .truncate {
+            display: block;
+            width: 100%;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 13px;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .col-short {
+        width: 22%;
+
+        a {
+            color: #a78bfa;
+            font-weight: 600;
+            font-size: 13px;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+                filter: brightness(1.2);
+            }
+        }
+    }
+
+    .col-date {
+        width: 11%;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 13px;
+    }
+
+    .col-clicks {
+        text-align: center;
+        width: 10%;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .col-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+
+        .btn-copy {
+            height: 40px;
+            padding: 0 14px;
+            font-family: $font-family;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.8);
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.08);
+                color: #ffffff;
+                border-color: rgba(255, 255, 255, 0.3);
+            }
+        }
+
+        .btn-delete {
+            height: 28px;
+            padding: 0;
+            font-family: $font-family;
+            font-size: 12px;
+            font-weight: 500;
+            color: $color-text;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s ease;
+
+            &:hover {
+                color: $color-accent-text
+            }
+        }
+    }
+}

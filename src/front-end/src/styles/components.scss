@@ -1,0 +1,21 @@
+@use "./vars.scss" as *;
+
+.shorten-btn {
+    appearance: none;
+    height: 48px;
+    padding: 0 32px;
+    border-radius: 8px;
+    border: 1px solid $color-accent;
+    background: transparent;
+    color: $color-accent;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.2;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover {
+        background: rgba(145, 132, 217, 0.1);
+    }
+}

@@ -1,7 +1,7 @@
 import { computed, Service, signal } from '@angular/core';
 
 
-interface UrlStateModel {
+export interface UrlStateModel {
     targetUrl: string;
     shortCode:string;
     load: boolean;
@@ -20,7 +20,7 @@ export class UrlState {
 
     private readonly state = signal<UrlStateModel>(initialState);
 
-    readonly urls = computed(() => this.state().targetUrl);
+    readonly targetUrl = computed(() => this.state().targetUrl);
     readonly load = computed(() => this.state().load);
     readonly shortCode = computed(() => this.state().shortCode);
     readonly error = computed(() => this.state().error);

@@ -1,0 +1,44 @@
+<div class="page">
+
+    <app-url-shorted></app-url-shorted>
+
+    <section class="table-information">
+        <h2 class="table-information-title">Links criados</h2>
+        <p class="table-information-description"> {{ this.state.urls().length || 0 }} links </p>
+    </section>
+
+    <div class="table-container">
+        <table class="links-table">
+            <thead>
+                <tr>
+                    <th class="col-original">URL Original</th>
+                    <th class="col-short">URL Curta</th>
+                    <th class="col-date">Criado em</th>
+                    <th class="col-clicks" style="text-align: center;">Cliques</th>
+                    <th class="col-actions" style="width: 100%; display: flex; justify-content: center;">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if(this.state.load()){
+                @for (urlModel of this.state.urls(); track urlModel.shortCode) {
+                <tr>
+                    <td class="col-original">
+                        <span class="truncate"> {{ urlModel.targetUrl | longTextPipe }} </span>
+                    </td>
+                    <td class="col-short">
+                        <a href="http://localhost:3000/{{urlModel.shortCode}}" target="_blank" rel="noopener">
+                            http://localhost:3000/{{urlModel.shortCode}} </a>
+                    </td> 
+                    <td class="col-date"> {{urlModel.createdAt | date:'dd/MM/yyyy' }} </td>
+                    <td class="col-clicks"> {{urlModel.accessCount}} </td>
+                    <td class="col-actions">
+                        <button type="button" class="btn-copy">Copiar</button>
+                        <button type="button" class="btn-delete">Excluir</button>
+                    </td>
+                </tr>
+                }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

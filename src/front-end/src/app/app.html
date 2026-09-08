@@ -1,24 +1,16 @@
 <header class="header">
-    <span class="header__logo">Encurta</span>
+  <span class="header-logo">Encurta</span>
 
-    <nav class="header__nav">
-      <button
-        type="button"
-        class="header__nav-item"
-        [class.header__nav-item--active]="activeTab() === 'encurtar'"
-        (click)="setTab('encurtar')"
-      >
-        Encurtar
-      </button>
-      <button
-        type="button"
-        class="header__nav-item"
-        [class.header__nav-item--active]="activeTab() === 'meus-links'"
-        (click)="setTab('meus-links')"
-      >
-        Meus links
-      </button>
-    </nav>
-  </header>
+  <nav class="header-nav">
+    <button type="button" class="header-nav-item" [class.header-nav-item--active]="activeTab() === 'encurtar'"
+      (click)="setTab('encurtar')">
+      Encurtar
+    </button>
+    <button type="button" class="header-nav-item" [class.header-nav-item--active]="activeTab() === 'meus-links'"
+      (click)="setTab('meus-links')">
+      Meus links
+    </button>
+  </nav>
+</header>
 
 <router-outlet></router-outlet>

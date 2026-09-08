@@ -81,7 +81,7 @@ export class UrlService {
             // verificar se existe no cache, se não vai para o banco de dados, depois seta o cache
             const cache = await this.#urlCacheRepository.getCachedUrl(shortCode);
             if (cache) {
-                this.#addViewInUrl(shortCode,connection);
+                this.#addViewInUrl(shortCode, connection);
                 return Result.ok({ targetUrl: cache })
             }
 
@@ -117,6 +117,22 @@ export class UrlService {
 
         } catch (error) {
             return Result.fail(UnexpectedError.create(`não foi possível pegar url, tente novamente mais tarde`));
+        } finally {
+            connection.release()
+        }
+    }
+
+    async deleteTargetUrl(shortCode) {
+        let connection;
+
+        try {
+            connection = await this.#urlRepository.getConnection();
+            const result = await this.#urlRepository.deleteOne(shortCode, connection);
+            await this.#urlCacheRepository.deleteCacheUrl(shortCode);
+            return result;
+
+        } catch (error) {
+            return Result.fail(UnexpectedError.create(`não foi possível deletar a url, tente novamente mais tarde`));
         } finally {
             connection.release()
         }

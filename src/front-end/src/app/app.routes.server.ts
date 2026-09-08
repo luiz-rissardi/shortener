@@ -8,5 +8,9 @@ export const serverRoutes: ServerRoute[] = [
   {
     path: 'home',
     renderMode: RenderMode.Server
+  },
+  {
+    path: 'list',
+    renderMode: RenderMode.Server
   }
 ];

@@ -48,6 +48,10 @@ export class UrlCacheRepository {
         return this.#redisClient.get(`${this.#urlCacheKey}:${shortCode}`);
     }
 
+    async deleteCacheUrl(shortCode){
+        return this.#redisClient.unlink(`${this.#urlCacheKey}:${shortCode}`)
+    }
+
     async cacheUrl(shortCode, targetUrl) {
         return this.#redisClient.set(`${this.#urlCacheKey}:${shortCode}`, targetUrl, "EX", this.#cacheTTLSeconds);
     }

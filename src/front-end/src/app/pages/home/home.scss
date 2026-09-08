@@ -1,12 +1,12 @@
-
 @use "../../../styles/vars" as *;
+@use "../../../styles/components" as *;
 
 :host {
-  display: flex;
-  background: $color-bg;
-  height: 86vh;
-  color: $color-text;
-  font-family: $font-family;
+    display: flex;
+    background: $color-bg;
+    height: 86vh;
+    color: $color-text;
+    font-family: $font-family;
 }
 
 .input-invalid {
@@ -17,147 +17,149 @@
 }
 
 .page {
-  max-width: $container-max;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 $container-padding-x;
+    max-width: $container-max;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 $container-padding-x;
 }
 
 
 .content {
-  padding-top: 88px;
+    padding-top: 88px;
 
-  &__title {
-    max-width: $form-max;
-    margin: 0;
-    font-size: 44px;
-    font-weight: 500;
-    line-height: 1.12;
-  }
+    &-title {
+        max-width: $form-max;
+        margin: 0;
+        font-size: 44px;
+        font-weight: 500;
+        line-height: 1.12;
+    }
 
-  &__subtitle {
-    max-width: $form-max;
-    margin: 10px 0 0;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 1.55;
-    color: $text-secondary-60;
-  }
+    &-subtitle {
+        max-width: $form-max;
+        margin: 10px 0 0;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.55;
+        color: $text-secondary-60;
+    }
 }
 
-// ---- formulário ----
-.shorten-form {
-  max-width: $form-max;
-  margin-top: 40px;
-
-  &__label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 13px;
-    font-weight: 400;
-    line-height: 1.4;
-  }
-
-  &__row {
-    display: flex;
-    align-items: stretch;
-    gap: 12px;
-  }
-
-  &__input {
-    flex: 1;
-    height: 27.6px;
-    padding: 10px 16px;
-    border-radius: 8px;
-    border: 1px solid $color-divider;
-    background: $color-surface;
-    color: $color-text;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1.2;
-
-    &::placeholder {
-      color: $text-secondary-40;
-    }
-
-    &:focus-visible {
-      outline: 2px solid $color-accent;
-      outline-offset: 2px;
-    }
-  }
-
-  &__submit {
-    appearance: none;
-    height: 48px;
-    padding: 0 32px;
-    border-radius: 8px;
-    border: 1px solid $color-accent;
-    background: transparent;
-    color: $color-text;
-    font-family: inherit;
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.2;
-    cursor: pointer;
-    white-space: nowrap;
-
-    &:hover {
-      background: rgba(145, 132, 217, 0.1);
-    }
-
-    &:focus-visible {
-      outline: 2px solid $color-accent;
-      outline-offset: 2px;
-    }
-  }
+.open {
+    color: $color-text !important;
+    border-color: $text-secondary-40 !important;
 }
 
 // ---- área de resultado ----
-.result {
-  max-width: $form-max;
-  min-height: 132px;
-  margin-top: 40px;
-  padding: 24px 28px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &--empty {
+.placeholder {
+    max-width: $form-max;
+    min-height: 132px;
+    margin-top: 40px;
+    padding: 24px 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border: 1px dashed $color-divider;
-  }
 
-  &__placeholder {
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1.55;
-    color: $text-secondary-45;
-  }
+    &-message {
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.55;
+        color: $text-secondary-45;
+    }
 
-  &__url {
-    font-size: 28px;
-    font-weight: 500;
-    line-height: 1.2;
-    color: $color-accent-text;
-  }
+    &-url {
+        font-size: 28px;
+        font-weight: 500;
+        line-height: 1.2;
+        color: $color-accent-text;
+    }
+}
+
+.result {
+    max-width: $form-max;
+    min-height: 132px;
+    margin-top: 40px;
+    padding: 24px 28px;
+    background-color: $color-surface;
+    border-radius: 8px;
+    justify-content: center;
+    display: flex;
+    flex-direction: row;
+
+    &-content {
+        width: 70%;
+        height: auto;
+
+        &-targetUrl {
+            max-width: $form-max;
+            margin: 1px 0 0;
+            font-size: 16px;
+            font-weight: 400;
+            line-height: 1.55;
+            white-space: nowrap;
+            font-family: $font-family;
+            color: $text-secondary-60;
+        }
+
+        &-shortCode {
+            font-size: 28px;
+            font-weight: 500;
+            font-family: $font-family;
+            color: $color-accent-text;
+        }
+
+        &-information {
+            display: flex;
+            gap: 10px;
+
+            .inform {
+                max-width: $form-max;
+                margin: 1px 0 0;
+                font-size: 11px;
+                font-weight: 400;
+                line-height: 1.55;
+                font-family: $font-family;
+                color: $text-secondary-60;
+
+                &-linked {
+                    background-color: $color-tag-bg;
+                    padding: 3px 10px;
+                    margin: 0;
+                    border-radius: 6px;
+                    color: $color-text;
+                    font-weight: 400;
+                }
+            }
+        }
+    }
+
+    &-buttons {
+        width: 30%;
+        height: auto;
+        display: flex;
+        justify-content: end;
+        margin: auto;
+        gap: 12px;
+    }
 }
 
 // ---- responsivo ----
 @media (max-width: 640px) {
-  .content {
-    padding-top: 48px;
+    .content {
+        padding-top: 48px;
 
-    &__title {
-      font-size: 32px;
+        &-title {
+            font-size: 32px;
+        }
     }
-  }
 
-  .shorten-form__row {
-    flex-direction: column;
-  }
+    .shorten-form-row {
+        flex-direction: column;
+    }
 
-  .shorten-form__submit {
-    width: 100%;
-  }
+    .shorten-form-submit {
+        width: 100%;
+    }
 }

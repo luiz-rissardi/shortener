@@ -1,0 +1,59 @@
+@use "../../../../styles/vars.scss" as *;
+@use "../../../../styles/components.scss" as *;
+
+
+.input-invalid {
+    color: #dc3545;
+    font-weight: 400;
+    padding-top: 10px;
+
+}
+
+.shorten-form {
+    max-width: $form-max;
+    margin-top: 40px;
+
+    &-label {
+        display: block;
+        margin-bottom: 5px;
+        color: $text-secondary-60;
+        font-family: $font-family;
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.4;
+    }
+
+    &-row {
+        display: flex;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    &-input {
+        flex: 1;
+        height: 27.6px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border: 1px solid $color-divider;
+        background: $color-surface;
+        color: $color-text;
+        font-family: inherit;
+        font-size: 15px;
+        font-weight: 400;
+        line-height: 1.2;
+
+        &::placeholder {
+            color: $text-secondary-40;
+        }
+
+        &:focus-visible {
+            outline: 2px solid $color-accent;
+            outline-offset: 2px;
+        }
+    }
+
+    &:focus-visible {
+        outline: 2px solid $color-accent;
+        outline-offset: 2px;
+    }
+}

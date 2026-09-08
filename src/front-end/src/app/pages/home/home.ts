@@ -1,15 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { form, FormField, FormRoot, required, validate } from '@angular/forms/signals';
-import { UrlFacade } from '../../url/facade/url-facade';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { UrlState } from '../../url/state/url-state';
+import { UrlShorted } from "../../url/components/url-shorted/url-shorted";
+import { LongTextPipe } from '../../url/utils/long-text-pipe-pipe';
 
 
-interface UrlFormModel {
-  targetUrl: string
-}
 
 @Component({
-  imports: [FormField, FormRoot],
+  imports: [UrlShorted,LongTextPipe],
   selector: 'app-home',
   styleUrl: './home.scss',
   templateUrl: './home.html',
@@ -17,36 +14,15 @@ interface UrlFormModel {
 })
 export class Home {
 
-  private regexUrlValid = /^https?:\/\/(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(?::\d{1,5})?(?:\/[a-zA-Z0-9\-._~%!$&'()*+,;=:@\/]*)?(?:\?[a-zA-Z0-9\-._~%!$&'()*+,;=:@\/?]*)?(?:#[a-zA-Z0-9\-._~%!$&'()*+,;=:@\/?]*)?$/;
-  private urlFacade = inject(UrlFacade);
-  private urlTarget = signal<UrlFormModel>({
-    targetUrl: ""
-  })
-
   protected state = inject(UrlState);
 
-  protected urlForm = form(this.urlTarget, (fields) => {
-    required(fields.targetUrl, { message: "o campo url é obrigatório" })
+  protected async copy() {
+    navigator.clipboard.writeText(`http://localhost:3000/${this.state.shortCode()}`)
+  }
 
-    validate(fields.targetUrl, (context) => {
-      const targetUrl = context.value();
-      if (this.regexUrlValid.test(targetUrl) == false) {
-        return {
-          kind: "targetUrl",
-          message: "o formato da url é invalido"
-        }
-      }
-      return null // valid Url
-    })
-  }, {
-    submission: {
-      action: async (fields) => {
-        this.state.reset();
-        const targetUrl = fields.targetUrl().value();
-        this.urlFacade.createShortCode(targetUrl)
-      }
-    }
-  })
-
+  protected openTargetUrl() {
+    const fullUrl = `http://localhost:3000/${this.state.shortCode()}`;
+    window.open(fullUrl, '_blank', 'noopener,noreferrer')
+  }
 
 }

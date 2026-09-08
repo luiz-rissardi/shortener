@@ -1,6 +1,7 @@
 import { createPool, PoolConnection } from "mysql2/promise";
 import { UrlModel } from "./url-model.js";
 import { RepositoryOperationError } from "../../shared/AppExceptions/appErrors.js";
+import { Result } from "../../shared/utils/result.js";
 
 export class UrlRepository {
     #PoolConnection;
@@ -67,6 +68,16 @@ export class UrlRepository {
             return result;
         } catch (error) {
             throw RepositoryOperationError.create();
+        }
+    }
+
+    async deleteOne(shortCode, connection = null){
+        try {
+            const executor = connection || this.#PoolConnection;
+            await executor.query("DELETE FROM urls WHERE shortCode = ?",[shortCode]);
+            return Result.ok("url deletada")
+        } catch (error) {
+            throw RepositoryOperationError.create()
         }
     }
 
