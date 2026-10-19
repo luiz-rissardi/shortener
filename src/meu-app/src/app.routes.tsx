@@ -1,6 +1,7 @@
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
 import { Home } from './pages/home';
+import { UrlList } from './pages/url-list';
 
 export const routes = createBrowserRouter([
     {
@@ -8,8 +9,12 @@ export const routes = createBrowserRouter([
         element: <App />,   // Sempre utilize JSX (<App />)
         children: [
             {
-                path: "home", // Caminho relativo (vira /home)
-                element: <Home /> // Sempre utilize JSX (<Home />)
+                path: "home", 
+                element: <Home />
+            },
+            {
+                path: "urls", 
+                element: <UrlList /> 
             }
         ]
     }

@@ -80,3 +80,5 @@ export function ShortCode() {
         </form>
     );
 }
+
+export default ShortCode

@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import "./style.css";
-import { ShortCode } from "../../url/components/encoder/index";
+// import { ShortCode } from "../../url/components/encoder/index";
 import { useUrlStore } from "../../url/states/url-state";
 
+const ShortCode = lazy(()=> import("../../url/components/encoder/index"))
 
 export function Home() {
 
@@ -10,6 +11,7 @@ export function Home() {
     const shortCode = useUrlStore(state => state.shortCode)
     const error = useUrlStore(state => state.error)
     const loaded = useUrlStore(state => state.loaded)
+
 
     return (
         <>
@@ -20,7 +22,9 @@ export function Home() {
                         Cole o link longo abaixo e gere um endereço curto para compartilhar.
                     </p>
 
-                    <ShortCode></ShortCode>
+                    <Suspense fallback={<div>Carregando formulário...</div>}>
+                        <ShortCode></ShortCode>
+                    </Suspense>
 
                     {shortCode != null && loaded && error == null ? (
                         <div className="result">

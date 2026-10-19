@@ -12,21 +12,21 @@ function App() {
           <span className="header-logo">Encurta</span>
 
           <nav className="header-nav">
-            <button
-              type="button"
+            <Link
+              to={'/home'}
               className={`header-nav-item ${activeTab === 'encurtar' ? 'header-nav-item--active' : ''}`}
               onClick={() => setActiveTab('encurtar')}
             >
               Encurtar
-            </button>
+            </Link>
 
-            <button
-              type="button"
+            <Link
+              to={'/urls'}
               className={`header-nav-item ${activeTab === 'meus-links' ? 'header-nav-item--active' : ''}`}
               onClick={() => setActiveTab('meus-links')}
             >
               meus links
-            </button>
+            </Link>
           </nav>
         </div >
       </header >
