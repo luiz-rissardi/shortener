@@ -1,0 +1,19 @@
+:root {
+    --color-bg: #161826;
+    --color-surface: #232532;
+    --color-text: #e9e9ed;
+    --color-accent: #9184d9;
+    --color-accent-text: #d2cefd;
+    --color-tag-bg: #423a6a;
+    --color-divider: rgba(233, 233, 237, 0.16);
+
+    --text-secondary-60: rgba(233, 233, 237, 0.6);
+    --text-secondary-45: rgba(233, 233, 237, 0.45);
+    --text-secondary-40: rgba(233, 233, 237, 0.4);
+
+    --font-family: 'Inter', sans-serif;
+
+    --container-max: 1120px;
+    --container-padding-x: 40px;
+    --form-max: 935px;
+}

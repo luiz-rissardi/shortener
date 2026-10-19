@@ -1,0 +1,21 @@
+@import url("./vars.css");
+
+.shorten-btn {
+    appearance: none;
+    height: 48px;
+    padding: 0 32px;
+    border-radius: 8px;
+    border: 1px solid var(--color-accent);
+    background: transparent;
+    color: var(--color-accent);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: bold;
+    line-height: 1.2;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.shorten-btn:hover {
+    background: rgba(145, 132, 217, 0.1);
+}
